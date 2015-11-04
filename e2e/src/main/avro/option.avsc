@@ -1,0 +1,35 @@
+[
+  {
+    "namespace": "com.nitro.example.messages",
+    "type": "record",
+    "name": "TestField",
+    "fields": [
+      { "name": "correct", "type": "boolean" },
+      { "name": "horse", "type": ["null", "boolean"] },
+      { "name": "battery", "type": ["null", "boolean"] },
+      { "name": "staple", "type": ["null", "boolean"] }
+    ]
+  },
+  {
+    "type": "record",
+    "name": "NoNamespace",
+    "fields": [
+      { "name": "Claude", "type": "boolean" },
+      { "name": "Shannon", "type": ["null", "boolean"] }
+    ]
+  },
+  {
+    "namespace": "com.nitro.example.messages",
+    "type": "record",
+    "name": "OptionTest",
+    "fields": [
+      { "name": "a", "type": "long" },
+      { "name": "b", "type": ["null", "long"] },
+      { "name": "c", "type": ["null", {"type":"map", "values": "string"}] },
+      { "name": "d", "type": ["null", {"type":"array", "items": "int"}] },
+      { "name": "optRec", "type": ["null", "com.nitro.example.messages.TestField"] },
+      { "name": "optNoN", "type": ["null", "NoNamespace"] },
+      { "name": "noN", "type": "NoNamespace" }
+    ]
+  }
+]

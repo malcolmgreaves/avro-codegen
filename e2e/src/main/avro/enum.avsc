@@ -1,0 +1,16 @@
+[
+  {
+    "namespace": "com.nitro.example.messages",
+    "type": "enum",
+    "name": "MyEnum",
+    "symbols" : ["Foo", "Bar", "Baz"]
+  },
+  {
+    "namespace": "com.nitro.example.messages",
+    "type": "record",
+    "name": "EnumTest",
+    "fields": [
+      {"name": "headers", "type": {"type":"map", "values": "MyEnum"}}
+    ]
+  }
+]

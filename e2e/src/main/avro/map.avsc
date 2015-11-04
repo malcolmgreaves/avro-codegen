@@ -1,0 +1,12 @@
+[
+  {
+    "namespace": "com.nitro.example.messages",
+    "type": "record",
+    "name": "MapTest",
+    "fields": [
+      {"name": "a", "type": {"type":"map", "values": "string"}},
+      {"name": "b", "type": {"type":"map", "values": "long"}},
+      {"name": "c", "type": {"type":"map", "values": {"type":"map", "values": "long"}}}
+    ]
+  }
+]

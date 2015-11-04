@@ -1,0 +1,67 @@
+[
+  {
+    "namespace": "com.nitro.example.messages",
+    "type": "enum",
+    "name": "RequestType",
+    "symbols" : ["Foo", "Bar", "Baz"]
+  },
+  {
+    "namespace": "com.nitro.example.messages",
+    "type": "record",
+    "name": "Metadata",
+    "fields": [
+      {"name": "timestamp", "type": "long"},
+      {"name": "type", "type": ["null", "RequestType"]},
+      {"name": "headers", "type": {"type":"map", "values": "string"}}
+    ]
+  },
+  {
+    "namespace": "com.nitro.example.messages",
+    "type": "record",
+    "name": "Point",
+    "fields": [
+      {"name": "name", "type": ["null", "string"]},
+      {"name": "x", "type": "int"},
+      {"name": "y", "type": "int"}
+    ]
+  },
+  {
+    "namespace": "com.nitro.example.messages",
+    "type": "record",
+    "name": "Line",
+    "fields": [
+      {"name": "name", "type": ["null", "string"]},
+      {"name": "start", "type": "Point"},
+      {"name": "end", "type": "Point"}
+    ]
+  },
+  {
+    "namespace": "com.nitro.example.messages",
+    "type": "record",
+    "name": "PolyLine",
+    "fields": [
+      {"name": "name", "type": ["null", "string"]},
+      {"name": "points", "type": {"type": "array", "items": "Point"}}
+    ]
+  },
+  {
+    "namespace": "com.nitro.example.messages",
+    "type": "record",
+    "name": "Circle",
+    "fields": [
+      {"name": "name", "type": ["null", "string"]},
+      {"name": "center", "type": "Point"},
+      {"name": "radius", "type": "int"}
+    ]
+  },
+  {
+    "namespace": "com.nitro.example.messages",
+    "type": "record",
+    "name": "DrawRequest",
+    "fields": [
+      {"name": "user", "type": "string"},
+      {"name": "meta", "type": "Metadata"},
+      {"name": "geometry", "type": {"type": "array", "items": ["Point", "Line", "PolyLine", "Circle"]}}
+    ]
+  }
+]
