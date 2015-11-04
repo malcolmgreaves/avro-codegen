@@ -1,0 +1,7 @@
+language: scala
+scala: 2.11.7
+script: 
+  - sbt clean update compile
+  - ./e2e.sh
+  - sbt "project codegen" +publish
+  - sbt "project runtime" +publish 
