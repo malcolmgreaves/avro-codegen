@@ -9,8 +9,8 @@ import PartialAvroJsonProtocol._
 class AvModule(private val lookups: Map[AvReference, AvSchema]) {
     def keySet = lookups.keySet
     
-    def lookup(key: AvReference) = lookups.get(key) map { avsc =>
-      makeCanonical(lookups - key, avsc)
+    def lookup(key: AvReference): Option[org.apache.avro.Schema] = lookups.get(key) map { avsc =>
+      makeCanonical(lookups - key, avsc).toSchema
     }
     
     /*

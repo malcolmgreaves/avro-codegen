@@ -1,6 +1,7 @@
 package com.nitro.scalaAvro
 
 import spray.json._
+import scala.collection.immutable.ListMap
 
 /**
  * @author ebiggs
@@ -10,6 +11,154 @@ import spray.json._
  * defined at some later point and looked up.
  */
 object PartialAvroJsonProtocol extends DefaultJsonProtocol {
+  type JsFieldOpt = Option[(String, JsValue)]
+  
+  implicit object AvSchemaWriter extends JsonWriter[AvSchema] {
+    def write(schema: AvSchema): JsValue = writeAvSchema("", schema)
+    
+    def writeEither(namespace: String, either: Either[AvSchema, AvReference]): JsValue = {
+      either match {
+        case Left(avsc) => writeAvSchema(namespace, avsc)
+        case Right(ref) => writeAvReference(namespace, ref)
+      }
+    }
+    
+    def inheritNamespace(thisNamespace: Option[String], namespace: String): Option[String] = {
+      thisNamespace match {
+        case Some("") => None
+        case Some(namespace) => None
+        case x => x
+      }
+    }
+    
+    def writeAvReference(namespace: String, ref: AvReference): JsValue = {
+      val thisNamespace = inheritNamespace(ref.namespace, namespace)
+      JsString(s"$thisNamespace.${ref.name}")
+    }
+    
+    def writeAvPrimitive(namespace: String, primitive: AvPrimitive): JsValue = {
+      JsString(primitive.typeName)
+    }
+    
+    def writeAvSchema(namespace: String, schema: AvSchema): JsValue = {
+      schema match {
+        case av: AvPrimitive => writeAvPrimitive(namespace, av)
+        case av: AvRecord => writeAvRecord(namespace, av)
+        case av: AvArray => writeAvArray(namespace, av)
+        case av: AvMap => writeAvMap(namespace, av)
+        case av: AvEnum => writeAvEnum(namespace, av)
+        case av: AvFixed => writeAvFixed(namespace, av)
+        case av: AvUnion => writeAvUnion(namespace, av)
+      }
+    }
+    
+    private def makeJsObject(optFields: JsFieldOpt*): JsObject =
+      makeJsObjectWithMeta(Seq(), optFields:_*)
+      
+    private def makeJsObjectWithMeta(meta: Seq[(String, JsValue)], optFields: JsFieldOpt*): JsObject = {
+      val props = (optFields.collect { case Some(tuple) => tuple }) ++ meta
+      
+      JsObject(ListMap(props:_*))
+    }
+    
+    def writeAvField(namespace: String, field: AvField): JsValue = {
+      val name: JsFieldOpt = Some("name" -> JsString(field.name))
+      
+      val doc: JsFieldOpt = field.doc.map("doc" -> JsString(_))
+      
+      val json = writeEither(namespace, field.`type`)
+      
+      val `type`: JsFieldOpt = Some("type" -> json)
+      
+      val default = field.default.map("default" -> _)
+      
+      val order: JsFieldOpt = field.order.map {
+        case AvOrderAscending => "order" -> JsString("ascending")
+        case AvOrderDescending => "order" -> JsString("descending")
+        case AvOrderIgnore => "order" -> JsString("ignore")
+      }
+      
+      val aliases: JsFieldOpt = field.aliases.length match {
+        case 0 => None
+        case _ => Some("aliases" -> JsArray(field.aliases.map(JsString(_)).toVector))
+      }
+
+      makeJsObject(name, doc, `type`, default, order, aliases)
+    }
+    
+    def writeAvRecord(namespace: String, record: AvRecord): JsValue = {
+      val `type`: JsFieldOpt = Some("type" -> JsString(record.typeName))
+      
+      val name: JsFieldOpt = Some("name" -> JsString(record.name))
+      
+      val thisNamespace = inheritNamespace(record.namespace, namespace)
+      val namespaceField :JsFieldOpt = thisNamespace.map("namespace" -> JsString(_))
+      
+      val doc: JsFieldOpt = record.doc.map("doc" -> JsString(_))
+      
+      val aliases: JsFieldOpt = record.aliases.length match {
+        case 0 => None
+        case _ => Some("aliases" -> JsArray(record.aliases.map(JsString(_)).toVector))
+      }
+      
+      val processedFields = record.fields.map(writeAvField(thisNamespace.getOrElse(namespace), _))
+      
+      val fields = Some("fields" -> JsArray(processedFields.toVector))
+      
+      makeJsObjectWithMeta(record.meta, `type`, name, namespaceField, doc, aliases, fields)
+    }
+    
+    def writeAvArray(namespace: String, array: AvArray): JsValue = {
+      val `type`: JsFieldOpt = Some("type" -> JsString(array.typeName))
+      
+      val json = writeEither(namespace, array.items)
+      val items: JsFieldOpt = Some("items" -> json)
+      
+      makeJsObject(`type`, items)
+    }
+    
+    def writeAvMap(namespace: String, map: AvMap): JsValue = {
+      val `type`: JsFieldOpt = Some("type" -> JsString(map.typeName))
+      
+      val json = writeEither(namespace, map.values)
+      val values: JsFieldOpt = Some("values" -> json)
+      
+      makeJsObject(`type`, values)
+    }
+    
+    def writeAvEnum(namespace: String, enum: AvEnum): JsValue = {
+      val `type`: JsFieldOpt = Some("type" -> JsString(enum.typeName))
+      
+      val name: JsFieldOpt = Some("name" -> JsString(enum.name))
+      
+      val thisNamespace = inheritNamespace(enum.namespace, namespace)
+      val namespaceField :JsFieldOpt = thisNamespace.map("namespace" -> JsString(_))
+      
+      val doc: JsFieldOpt = enum.namespace.map("doc" -> JsString(_))
+      
+      val symbols: JsFieldOpt = Some("items" -> enum.symbols.toJson)
+      
+      makeJsObject(`type`, name, namespaceField, doc, symbols)
+    }
+    
+    def writeAvFixed(namespace: String, fixed: AvFixed): JsValue = {
+      val `type`: JsFieldOpt = Some("type" -> JsString(fixed.typeName))
+      val name: JsFieldOpt = Some("name" -> JsString(fixed.name))
+      val size: JsFieldOpt = Some("size" -> JsNumber(fixed.size))
+      val aliases: JsFieldOpt = fixed.aliases.length match {
+        case 0 => None
+        case _ => Some("aliases" -> JsArray(fixed.aliases.map(JsString(_)).toVector))
+      }
+      
+      makeJsObject(`type`, name, aliases, size)
+    }
+    
+    def writeAvUnion(namespace: String, union: AvUnion): JsValue = {
+      val jsons = union.types.map(writeEither(namespace, _))
+      JsArray(jsons:_*)
+    }
+  }
+  
   implicit object AvSchemaReader extends JsonReader[AvSchema] {
     
     val primitiveNames = AvPrimitive.all.map(_.typeName)
