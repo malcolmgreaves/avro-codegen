@@ -11,7 +11,8 @@ version := semver.toString
 libraryDependencies ++= Seq(
   "org.scala-lang"             %   "scala-reflect" % scalaVersion.value,
   "io.spray"                   %%  "spray-json"    % "1.3.2",
-  "org.apache.avro"            %   "avro"          % "1.7.7"
+  "org.apache.avro"            %   "avro"          % "1.7.7",
+  "org.scalatest"              %%  "scalatest"     % "2.2.1" % Test
 )
 resolvers ++= Seq(
   "Typesafe Releases Repository - common" at "http://repo.typesafe.com/typesafe/releases/"

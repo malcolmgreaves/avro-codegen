@@ -10,19 +10,20 @@ class AvModule(private val lookups: Map[AvReference, AvSchema]) {
     def keySet = lookups.keySet
     
     def lookup(key: AvReference): Option[org.apache.avro.Schema] = lookups.get(key) map { avsc =>
-      makeCanonical(lookups - key, avsc).toSchema
+      val (_, canonical) = makeCanonical(lookups - key, avsc)
+      canonical.toSchema
     }
     
     /*
      * De-references only the first unseen reference. This is canonical avsc structure
      * per org.apache.avro Schema.Parser
      */
-    private[this] def makeCanonical(unseen: Map[AvReference, AvSchema], av: AvSchema): AvSchema = {
+    private[this] def makeCanonical(unseen: Map[AvReference, AvSchema], av: AvSchema): (Map[AvReference, AvSchema], AvSchema) = {
       def dereferenceUnseen(unseen: Map[AvReference, AvSchema], either: Either[AvSchema, AvReference]): (Map[AvReference, AvSchema], Either[AvSchema, AvReference]) = either match {
         case x @ Right(ref) => unseen.get(ref) match {
           case Some(avsc) => 
-            val nextUnseen = unseen - ref
-            (nextUnseen, Left(makeCanonical(nextUnseen, avsc)))
+            val (nextUnseen, canonical) = makeCanonical(unseen - ref, avsc) 
+            (nextUnseen, Left(canonical))
           case None => (unseen, x)
         }
 
@@ -30,30 +31,30 @@ class AvModule(private val lookups: Map[AvReference, AvSchema]) {
       }
       
       av match {
-        case av: AvPrimitive => av
-        case av: AvEnum => av
-        case av: AvFixed => av
+        case av: AvPrimitive => (unseen, av)
+        case av: AvEnum => (unseen, av)
+        case av: AvFixed => (unseen, av)
         case av: AvArray =>
-          val (_, items) = dereferenceUnseen(unseen, av.items)
-          av.copy(items = items)
+          val (nextUnseen, items) = dereferenceUnseen(unseen, av.items)
+          (nextUnseen, av.copy(items = items))
         case av: AvMap => 
-          val (_, values) = dereferenceUnseen(unseen, av.values)
-          av.copy(values = values)
+          val (nextUnseen, values) = dereferenceUnseen(unseen, av.values)
+          (nextUnseen, av.copy(values = values))
         case av: AvUnion =>
-          val (_, types) = av.types.foldLeft((unseen, Seq[Either[AvSchema, AvReference]]())) { (memo, next) =>
+          val (nextUnseen, types) = av.types.foldLeft((unseen, Seq[Either[AvSchema, AvReference]]())) { (memo, next) =>
             val (unseen, seq) = memo
             val (nextUnseen, avsc) = dereferenceUnseen(unseen, next)
             (nextUnseen, seq ++ Seq(avsc))
           }
-          av.copy(types = types)
+          (nextUnseen, AvUnion(types:_*))
         case av: AvRecord => 
-          val (_, fields) = av.fields.foldLeft((unseen, Seq[AvField]())) { (memo, field) =>
+          val (nextUnseen, fields) = av.fields.foldLeft((unseen, Seq[AvField]())) { (memo, field) =>
             val (unseen, seq) = memo
             val (nextUnseen, avsc) = dereferenceUnseen(unseen, field.`type`)
             val nextField = field.copy(`type` = avsc)
             (nextUnseen, seq ++ Seq(nextField))
           }
-          av.copy(fields = fields)
+          (nextUnseen, av.copy(fields = fields))
       }
     }
   }

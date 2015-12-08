@@ -26,7 +26,7 @@ object PartialAvroJsonProtocol extends DefaultJsonProtocol {
     def inheritNamespace(thisNamespace: Option[String], namespace: String): Option[String] = {
       thisNamespace match {
         case Some("") => None
-        case Some(namespace) => None
+        case Some(`namespace`) => None
         case x => x
       }
     }
@@ -132,11 +132,12 @@ object PartialAvroJsonProtocol extends DefaultJsonProtocol {
       val name: JsFieldOpt = Some("name" -> JsString(enum.name))
       
       val thisNamespace = inheritNamespace(enum.namespace, namespace)
+      
       val namespaceField :JsFieldOpt = thisNamespace.map("namespace" -> JsString(_))
       
-      val doc: JsFieldOpt = enum.namespace.map("doc" -> JsString(_))
+      val doc: JsFieldOpt = enum.doc.map("doc" -> JsString(_))
       
-      val symbols: JsFieldOpt = Some("items" -> enum.symbols.toJson)
+      val symbols: JsFieldOpt = Some("symbols" -> enum.symbols.toJson)
       
       makeJsObject(`type`, name, namespaceField, doc, symbols)
     }
@@ -144,13 +145,15 @@ object PartialAvroJsonProtocol extends DefaultJsonProtocol {
     def writeAvFixed(namespace: String, fixed: AvFixed): JsValue = {
       val `type`: JsFieldOpt = Some("type" -> JsString(fixed.typeName))
       val name: JsFieldOpt = Some("name" -> JsString(fixed.name))
+      val thisNamespace = inheritNamespace(fixed.namespace, namespace)
+      val namespaceField :JsFieldOpt = thisNamespace.map("namespace" -> JsString(_))
       val size: JsFieldOpt = Some("size" -> JsNumber(fixed.size))
       val aliases: JsFieldOpt = fixed.aliases.length match {
         case 0 => None
         case _ => Some("aliases" -> JsArray(fixed.aliases.map(JsString(_)).toVector))
       }
       
-      makeJsObject(`type`, name, aliases, size)
+      makeJsObject(`type`, name, namespaceField, aliases, size)
     }
     
     def writeAvUnion(namespace: String, union: AvUnion): JsValue = {
@@ -302,7 +305,7 @@ object PartialAvroJsonProtocol extends DefaultJsonProtocol {
       val nextNamespace = obj.get("namespace").map(_.convertTo[String]).getOrElse(namespace)
       val doc = obj.get("doc").map(_.convertTo[String])
       
-      val symbols: Seq[String] = obj("aliases") match {
+      val symbols: Seq[String] = obj("symbols") match {
         case JsArray(arr) =>
           arr.map(_.convertTo[String])
         case x =>
@@ -311,7 +314,7 @@ object PartialAvroJsonProtocol extends DefaultJsonProtocol {
       
       AvEnum(
         name = name, 
-        namespace = Some(namespace), 
+        namespace = Some(nextNamespace), 
         doc = doc, 
         symbols = symbols
       )
@@ -339,7 +342,7 @@ object PartialAvroJsonProtocol extends DefaultJsonProtocol {
     }
     
     def readAvUnion(namespace: String, types: Vector[JsValue]): AvSchema = {
-      AvUnion(types.map(readEither(namespace, _)))
+      AvUnion(types.toArray.map(readEither(namespace, _)):_*)
     }
   }
 }

@@ -83,7 +83,7 @@ package scalaAvro {
         case av: AvFixed => av
         case av: AvArray => av.copy(items = forceRef(av.items))
         case av: AvMap => av.copy(values = forceRef(av.values))
-        case av: AvUnion => av.copy(types = av.types.map(forceRef))
+        case av: AvUnion => AvUnion(av.types.map(forceRef):_*)
         case av: AvRecord => av.copy(fields = av.fields.map(field => field.copy(`type` = forceRef(field.`type`))))
       }
     }
@@ -131,7 +131,7 @@ package scalaAvro {
   
   object AvArray extends AvComplex { val typeName: String = "array" }
   
-  case class AvUnion(types: Seq[Either[AvSchema, AvReference]]) extends AvSchema(AvUnion.typeName) with AvComplex {
+  case class AvUnion(types: Either[AvSchema, AvReference]*) extends AvSchema(AvUnion.typeName) with AvComplex {
     def children = types
   }
   
