@@ -17,7 +17,7 @@ resolvers ++= Seq(
 )
 
 // compile & runtime settings
-scalaVersion := "2.10.5"
+scalaVersion := "2.10.6"
 CompileScalaJava.pluginSettings(devConfig)
 javaOptions := jvmOpts
 

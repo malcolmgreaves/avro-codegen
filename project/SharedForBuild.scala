@@ -30,7 +30,7 @@ object SharedForBuild extends Build {
         fatalWarnings = false,
         logImplicits = false,
         optimize = true,
-        crossCompile = Seq("2.11.7", "2.10.5"),
+        crossCompile = Seq("2.11.7", "2.10.6"),
         inlineWarn = true
       )
     )
