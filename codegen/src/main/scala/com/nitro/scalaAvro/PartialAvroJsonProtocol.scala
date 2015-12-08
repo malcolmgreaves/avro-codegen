@@ -10,7 +10,7 @@ import spray.json._
  * defined at some later point and looked up.
  */
 object PartialAvroJsonProtocol extends DefaultJsonProtocol {
-  implicit object AvSchemaFormatWithContext extends JsonReader[AvSchema] {
+  implicit object AvSchemaReader extends JsonReader[AvSchema] {
     
     val primitiveNames = AvPrimitive.all.map(_.typeName)
     
@@ -190,7 +190,7 @@ object PartialAvroJsonProtocol extends DefaultJsonProtocol {
     }
     
     def readAvUnion(namespace: String, types: Vector[JsValue]): AvSchema = {
-      AvUnion(types.map(readEither(namespace, _)):_*)
+      AvUnion(types.map(readEither(namespace, _)))
     }
   }
 }
