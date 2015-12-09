@@ -1,15 +1,19 @@
 package com.nitro.scalaAvro
 
-import java.nio.file.Files
-
-import org.apache.avro.file._
-import org.apache.avro.generic._
 import org.scalatest._
 import spray.json._
 import PartialAvroJsonProtocol._
+import scala.Vector
+import language.reflectiveCalls
 
 class AvModuleSpec extends PropSpec with Matchers {
   def bounce(avsc: AvSchema) = avsc.toJson.toString.parseJson.convertTo[AvSchema]
+  
+  val partials = new {
+    val wheel = """{ "type": "record", "name": "Wheel", "fields": [{ "name": "size", "type": "float" }] }"""
+    val car = """{ "type": "record", "name": "Car", "fields": [{ "name": "wheels", "type": { "type": "array", "items": "Wheel"} }] }"""
+    val carAndWheel = """{ "type": "record", "name": "Car", "fields": [{ "name": "wheels", "type": { "type": "array", "items": { "type": "record", "name": "Wheel", "fields": [{ "name": "size", "type": "float" }] }} }] }"""
+  }
 
   property(s"Reads/Writes null") {
     AvNull shouldBe "\"null\"".parseJson.convertTo[AvSchema]
@@ -99,5 +103,33 @@ class AvModuleSpec extends PropSpec with Matchers {
     val avFixed = AvFixed(size = 16, name = "md5", namespace = Some("com.nitro.example.messages"))
     fixedStr.parseJson.convertTo[AvSchema] shouldBe avFixed
     avFixed shouldBe bounce(avFixed)
+  }
+  
+  property(s"Reads interdependent partial Avro strings.") {
+    val avModule = AvModule.fromStringPartials(Seq(partials.car, partials.wheel))
+  }
+  
+  property(s"Allows identical redefinitions.") {
+    val avModule = AvModule.fromStringPartials(Seq(partials.car, partials.wheel, partials.carAndWheel))
+  }
+  
+  property(s"Fails if a redefinition is not identical to a prior definition.") {
+    //size should be float not double
+    val conflictingWheel = """{ "type": "record", "name": "Wheel", "fields": [{ "name": "size", "type": "double" }] }"""
+    val abc = an [Exception] should be thrownBy AvModule.fromStringPartials(Seq(conflictingWheel, partials.carAndWheel))
+  }
+  
+  property(s"Fails if no definition is found for a reference across all partials.") {
+    //Window is not defined
+    val door = """{ "type": "record", "name": "Door", "fields": [{ "name": "window", "type": "Window" }] }"""
+    val abc = an [Exception] should be thrownBy AvModule.fromStringPartials(Seq(door, partials.carAndWheel))
+  }
+  
+  property(s"Builds canonical schema compatible with org.apache.avro.Schema.Parser") {
+    val parser = new org.apache.avro.Schema.Parser()
+    val canonical = parser.parse(partials.carAndWheel).toString.parseJson.convertTo[AvSchema]
+    val key = AvReference(Some(""), "Car")
+    val fromPartials = AvModule.fromStringPartials(Seq(partials.car, partials.wheel)).lookup(key).get.toString
+    fromPartials.parseJson.convertTo[AvSchema] shouldBe canonical
   }
 }

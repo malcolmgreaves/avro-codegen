@@ -26,8 +26,10 @@ class AvModule(private val lookups: Map[AvReference, AvSchema]) {
             (nextUnseen, Left(canonical))
           case None => (unseen, x)
         }
-
-        case x => (unseen, x)
+        
+        case Left(avsc) =>
+          val (nextUnseen, canonical) = makeCanonical(unseen, avsc)
+          (nextUnseen, Left(canonical))
       }
       
       av match {
@@ -84,6 +86,6 @@ class AvModule(private val lookups: Map[AvReference, AvSchema]) {
     }
     
     def fromStringPartials(partials: Seq[String]) = fromJsonPartials {
-      partials.map(_.toJson)
+      partials.map(_.parseJson)
     }
   }

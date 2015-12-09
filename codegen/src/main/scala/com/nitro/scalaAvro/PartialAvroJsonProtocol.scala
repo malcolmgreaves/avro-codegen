@@ -32,8 +32,8 @@ object PartialAvroJsonProtocol extends DefaultJsonProtocol {
     }
     
     def writeAvReference(namespace: String, ref: AvReference): JsValue = {
-      val thisNamespace = inheritNamespace(ref.namespace, namespace)
-      JsString(s"$thisNamespace.${ref.name}")
+      val thisRef = AvReference(inheritNamespace(ref.namespace, namespace), ref.name)
+      JsString(thisRef.toString)
     }
     
     def writeAvPrimitive(namespace: String, primitive: AvPrimitive): JsValue = {

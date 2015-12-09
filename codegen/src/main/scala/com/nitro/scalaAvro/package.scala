@@ -19,7 +19,13 @@ package scalaAvro {
     def toAvSchema: AvSchema = schema.toString.parseJson.convertTo[AvSchema]
   }
   
-  case class AvReference(namespace: Option[String], name: String)
+  case class AvReference(namespace: Option[String], name: String) {
+    override def toString() = namespace match {
+      case None => name
+      case Some("") => name
+      case Some(namespace) => s"$namespace.$name"
+    }
+  }
     
   trait AvReferable {
     def namespace: Option[String]
@@ -74,8 +80,11 @@ package scalaAvro {
 
     def copyWithReferencesOnly: AvSchema = {
       def forceRef(either: Either[AvSchema, AvReference]) = either match {
-        case Left(r: AvReferable) => Right(r.reference)
-        case x => x
+        case Left(r: AvReferable) => 
+          Right(r.reference)
+        case Left(x) =>
+          Left(x.copyWithReferencesOnly)
+        case x @ Right(_) => x
       }
       self match {
         case av: AvPrimitive => av
