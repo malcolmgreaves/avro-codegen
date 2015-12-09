@@ -5,6 +5,11 @@ import spray.json._
 import PartialAvroJsonProtocol._
 import scala.Vector
 import language.reflectiveCalls
+import java.io.File
+import java.io.FileReader
+import java.nio.file.Paths
+import java.nio.file.Files
+import java.nio.file.StandardOpenOption
 
 class AvModuleSpec extends PropSpec with Matchers {
   def bounce(avsc: AvSchema) = avsc.toJson.toString.parseJson.convertTo[AvSchema]
@@ -128,8 +133,21 @@ class AvModuleSpec extends PropSpec with Matchers {
   property(s"Builds canonical schema compatible with org.apache.avro.Schema.Parser") {
     val parser = new org.apache.avro.Schema.Parser()
     val canonical = parser.parse(partials.carAndWheel).toString.parseJson.convertTo[AvSchema]
-    val key = AvReference(Some(""), "Car")
-    val fromPartials = AvModule.fromStringPartials(Seq(partials.car, partials.wheel)).lookup(key).get.toString
+    val fromPartials = AvModule.fromStringPartials(Seq(partials.car, partials.wheel))("Car").toString
     fromPartials.parseJson.convertTo[AvSchema] shouldBe canonical
+  }
+  
+  property(s"Breaks .avsc down to .avsp and vice versa.") {
+    val path = "codegen/src/test/avro"
+    val fullSchema = new String(Files.readAllBytes(Paths.get(s"$path/Example.avsc"))).parseJson.convertTo[AvSchema];
+    val module = AvModule.fromPartials(Seq(fullSchema))
+    val partials = module.toPartials.map { case (ref, partial) =>
+      val avspPath = Paths.get(s"$path/${ref.name}.avsp")
+      val str = partial.toJson.prettyPrint
+      Files.write(avspPath, str.getBytes("utf-8"), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+      str
+    }
+    val fromPartials = AvModule.fromStringPartials(partials.toSeq)("com.flowprotocol.examples.drawing.Drawing").toString
+    fromPartials.parseJson.convertTo[AvSchema] shouldBe fullSchema
   }
 }

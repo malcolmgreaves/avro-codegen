@@ -13,6 +13,27 @@ import scala.collection.immutable.ListMap
 object PartialAvroJsonProtocol extends DefaultJsonProtocol {
   type JsFieldOpt = Option[(String, JsValue)]
   
+  implicit object AvReferenceFormat extends JsonFormat[AvReference] {
+    def parseName(str: String): (Option[String], String) = {
+      val pieces = str.split("\\.").toList.reverse
+      val name = pieces.head
+      val namespace = pieces.tail.reverse match {
+        case Nil => None
+        case xs => Some(xs.mkString("."))
+      }
+      (namespace, name)
+    }
+    
+    def write(ref: AvReference): JsValue = JsString(ref.toString)
+    
+    def read(value: JsValue): AvReference = value match {
+      case JsString(str) =>
+        val (namespace, name) = parseName(str)
+        AvReference(namespace, name)
+      case x => throw new DeserializationException("Parsing a referenc. JsString expected but found: " + x)
+    }
+  }
+  
   implicit object AvSchemaWriter extends JsonWriter[AvSchema] {
     def write(schema: AvSchema): JsValue = writeAvSchema("", schema)
     
@@ -201,13 +222,7 @@ object PartialAvroJsonProtocol extends DefaultJsonProtocol {
     }
     
     def readAvReference(namespace: String, str: String): AvReference = {
-      val pieces = str.split("\\.").toList.reverse
-      val name = pieces.head
-      val nextNamespace = pieces.tail.reverse match {
-        case Nil => None
-        case xs => Some(xs.mkString("."))
-      }
-      
+      val (nextNamespace, name) = AvReferenceFormat.parseName(str)
       AvReference(Some(nextNamespace.getOrElse(namespace)), name)
     }
       

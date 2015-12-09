@@ -66,7 +66,7 @@ package scalaAvro {
       val (childDefs, childRefs) = separate(children)
       val (recursiveDefs, recursiveRefs) = childDefs.map(_.traverse).unzip
       val defs = self match {
-        case x: AvSchema with AvReferable => recursiveDefs.flatten ++ Seq(x)
+        case x: AvComplex with AvReferable => recursiveDefs.flatten ++ Seq(x)
         case _ => recursiveDefs.flatten
       }
       val refs = (recursiveRefs.flatten ++ childRefs)

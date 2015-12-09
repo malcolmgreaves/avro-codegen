@@ -6,13 +6,24 @@ import PartialAvroJsonProtocol._
 /**
  * @author ebiggs
  */
-class AvModule(private val lookups: Map[AvReference, AvSchema]) {
-    def keySet = lookups.keySet
+class AvModule(val toPartials: Map[AvReference, AvSchema]) {
+    def keySet = toPartials.keySet
     
-    def lookup(key: AvReference): Option[org.apache.avro.Schema] = lookups.get(key) map { avsc =>
-      val (_, canonical) = makeCanonical(lookups - key, avsc)
+    def get(key: AvReference): Option[org.apache.avro.Schema] = toPartials.get(key) map { avsc =>
+      val (_, canonical) = makeCanonical(toPartials - key, avsc)
       canonical.toSchema
     }
+    
+    def apply(key: AvReference): org.apache.avro.Schema = get(key).get
+    
+    def get(name: String): Option[org.apache.avro.Schema] = get { 
+      (JsString(name).convertTo[AvReference]) match {
+        case AvReference(None, name) => AvReference(Some(""), name)
+        case x => x
+      }
+    }
+    
+    def apply(name: String): org.apache.avro.Schema = get(name).get 
     
     /*
      * De-references only the first unseen reference. This is canonical avsc structure
