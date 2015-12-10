@@ -22,7 +22,7 @@ class AvroGenerator(val params: AvroGeneratorParams = AvroGeneratorParams()) ext
       .indent
       .print(record.fields) {
         case (field, printer) =>
-          val withMethod = "with" + field.upperScalaName
+          val withMethod = "with"+field.upperScalaName
           printer
             .add(s"def $withMethod(__v: ${field.scalaTypeName}): ${record.upperScalaName} = copy(${field.scalaName.asSymbol} = __v)")
       }
@@ -92,48 +92,48 @@ class AvroGenerator(val params: AvroGeneratorParams = AvroGeneratorParams()) ext
   //ex: Vector[Map[String, UnionXYZ]], UnionXYZ needs generated extractor/builder
   //recursive nested schema extractor (skipping records, which may have their own union children, w/ generation elsewhere)
   def nestedSchemas(record: AvroRecord): Seq[Schema] = {
-    def nestedSchema(schema: Schema): Seq[Schema] =
-      schema.asMap.map { map =>
-        schema +: nestedSchema(map.valueType)
-      }.orElse(schema.asArray.map { arr =>
-        schema +: nestedSchema(arr.elementType)
-      }).orElse(schema.asOptional.map { opt =>
-        schema +: nestedSchema(opt.nonNullSchema)
-      }).orElse(schema.asOptionalUnion.map { optU =>
-        schema +: optU.types.flatMap(nestedSchema)
-      }).orElse(schema.asUnion.map { union =>
-        schema +: union.types.flatMap(nestedSchema)
-      }).getOrElse(Seq.empty)
+      def nestedSchema(schema: Schema): Seq[Schema] =
+        schema.asMap.map { map =>
+          schema +: nestedSchema(map.valueType)
+        }.orElse(schema.asArray.map { arr =>
+          schema +: nestedSchema(arr.elementType)
+        }).orElse(schema.asOptional.map { opt =>
+          schema +: nestedSchema(opt.nonNullSchema)
+        }).orElse(schema.asOptionalUnion.map { optU =>
+          schema +: optU.types.flatMap(nestedSchema)
+        }).orElse(schema.asUnion.map { union =>
+          schema +: union.types.flatMap(nestedSchema)
+        }).getOrElse(Seq.empty)
     record.fields.map(_.schema()).flatMap(nestedSchema)
   }
 
   def generateUnionBuilder(schema: Schema)(printer: FunctionalPrinter): FunctionalPrinter = {
-    def builderFor(types: Seq[Schema], unionTypeName: String, unionTypeBuilderName: String, isOversize: Boolean)(printer: FunctionalPrinter) =
-      printer
-        .add(s"def $unionTypeBuilderName(__a: Any): Option[$unionTypeName] = __a match {")
-        .indent
-        .print(types) { (schema, printer) =>
+      def builderFor(types: Seq[Schema], unionTypeName: String, unionTypeBuilderName: String, isOversize: Boolean)(printer: FunctionalPrinter) =
+        printer
+          .add(s"def $unionTypeBuilderName(__a: Any): Option[$unionTypeName] = __a match {")
+          .indent
+          .print(types) { (schema, printer) =>
 
-          def resultWrapper(expr: String) = if (isOversize) s"Some($expr)"
-          else s"Some(shapeless.Coproduct[$unionTypeName]($expr))"
+              def resultWrapper(expr: String) = if (isOversize) s"Some($expr)"
+              else s"Some(shapeless.Coproduct[$unionTypeName]($expr))"
 
-          val asScalaCase = schema.getType match {
-            case Type.RECORD =>
-              s"""case (__record: ${Types.GenericRecordBase}) if __record.getSchema.getName == "${schema.getName}" => ${resultWrapper(fromMutable(schema)("__record"))}"""
-            case Type.UNION => throw new Exception("Avro Unions may not immediately contain other unions")
-            case Type.ENUM =>
-              s"""case (__enum: ${Types.GenericEnumBase}) if (__enum.getSchema.getName == "${schema.getName}") => ${resultWrapper(fromMutable(schema)("__enum"))}"""
-            case Type.STRING =>
-              s"""case (__string: ${Types.Utf8}) => ${resultWrapper(fromMutable(schema)("__string"))}"""
-            case Type.ARRAY =>
-              s"""case (__arr: ${Types.GenericArrayBase}[_]) => ${resultWrapper(fromMutable(schema)("__arr"))}"""
-            case Type.MAP =>
-              s"""case (__map: ${Types.GenericMap}[_,_]) => ${resultWrapper(fromMutable(schema)("__map"))}"""
-            case f =>
-              s"case (__x: ${schema.scalaTypeName}) => ${resultWrapper(fromMutable(schema)("__x"))}"
-          }
-          printer.add(asScalaCase)
-        }.outdent.add("}")
+            val asScalaCase = schema.getType match {
+              case Type.RECORD =>
+                s"""case (__record: ${Types.GenericRecordBase}) if __record.getSchema.getName == "${schema.getName}" => ${resultWrapper(fromMutable(schema)("__record"))}"""
+              case Type.UNION => throw new Exception("Avro Unions may not immediately contain other unions")
+              case Type.ENUM =>
+                s"""case (__enum: ${Types.GenericEnumBase}) if (__enum.getSchema.getName == "${schema.getName}") => ${resultWrapper(fromMutable(schema)("__enum"))}"""
+              case Type.STRING =>
+                s"""case (__string: ${Types.Utf8}) => ${resultWrapper(fromMutable(schema)("__string"))}"""
+              case Type.ARRAY =>
+                s"""case (__arr: ${Types.GenericArrayBase}[_]) => ${resultWrapper(fromMutable(schema)("__arr"))}"""
+              case Type.MAP =>
+                s"""case (__map: ${Types.GenericMap}[_,_]) => ${resultWrapper(fromMutable(schema)("__map"))}"""
+              case f =>
+                s"case (__x: ${schema.scalaTypeName}) => ${resultWrapper(fromMutable(schema)("__x"))}"
+            }
+            printer.add(asScalaCase)
+          }.outdent.add("}")
 
     schema.asUnion.map { union =>
       printer.call(builderFor(union.types, unionTypeName = union.unionTypeName, unionTypeBuilderName = union.unionTypeBuilderName, union.isOversize))
@@ -152,32 +152,32 @@ class AvroGenerator(val params: AvroGeneratorParams = AvroGeneratorParams()) ext
     }).getOrElse(printer)
 
   def generateUnionExtractor(schema: Schema)(printer: FunctionalPrinter): FunctionalPrinter = {
-    def polyExtractorFor(types: Seq[Schema], unionTypeExtractorName: String)(printer: FunctionalPrinter) =
-      printer
-        .add(s"private object $unionTypeExtractorName extends shapeless.Poly1 {")
-        .indent
-        .print(types.zipWithIndex) {
-          case ((schema, idx), printer) =>
-            printer
-              .add(s"implicit def case$idx = at[${schema.scalaTypeName}]{ x => ")
-              .indent
-              .add(toMutable(schema)("x"))
-              .outdent
-              .add("}")
-        }.outdent.add("}")
+      def polyExtractorFor(types: Seq[Schema], unionTypeExtractorName: String)(printer: FunctionalPrinter) =
+        printer
+          .add(s"private object $unionTypeExtractorName extends shapeless.Poly1 {")
+          .indent
+          .print(types.zipWithIndex) {
+            case ((schema, idx), printer) =>
+              printer
+                .add(s"implicit def case$idx = at[${schema.scalaTypeName}]{ x => ")
+                .indent
+                .add(toMutable(schema)("x"))
+                .outdent
+                .add("}")
+          }.outdent.add("}")
 
-    def extractorFor(types: Seq[Schema], unionTypeExtractorName: String)(printer: FunctionalPrinter) =
-      printer
-        .add(s"def $unionTypeExtractorName(_x: Any) = _x match {")
-        .indent
-        .print(types) {
-          case (schema, printer) =>
-            printer
-              .add(s"case (__x: ${schema.scalaTypeName}) => ")
-              .indent
-              .add(toMutable(schema)("__x"))
-              .outdent
-        }.outdent.add("}")
+      def extractorFor(types: Seq[Schema], unionTypeExtractorName: String)(printer: FunctionalPrinter) =
+        printer
+          .add(s"def $unionTypeExtractorName(_x: Any) = _x match {")
+          .indent
+          .print(types) {
+            case (schema, printer) =>
+              printer
+                .add(s"case (__x: ${schema.scalaTypeName}) => ")
+                .indent
+                .add(toMutable(schema)("__x"))
+                .outdent
+          }.outdent.add("}")
 
     schema.asUnion.map { union =>
       if (union.isOversize) printer.call(extractorFor(union.types, unionTypeExtractorName = union.unionTypeExtractorName))
@@ -230,10 +230,10 @@ class AvroGenerator(val params: AvroGeneratorParams = AvroGeneratorParams()) ext
 
   def printConstructorFieldList(record: AvroRecord)(printer: FunctionalPrinter): FunctionalPrinter = {
     val regularFields = record.fields.collect {
-        case field =>
-          val fieldName = field.scalaName.asSymbol
-          val typeName = field.scalaTypeName
-          s"$fieldName: $typeName"
+      case field =>
+        val fieldName = field.scalaName.asSymbol
+        val typeName = field.scalaTypeName
+        s"$fieldName: $typeName"
     }
     printer.addWithDelimiter(",")(regularFields)
   }
@@ -292,17 +292,17 @@ trait AvroExpressions {
     val GenUtils = "com.nitro.scalaAvro.runtime.AvroGenUtils"
     val genString = s"$GenUtils.genAvroString"
 
-    def etc = schema.avroType match {
-      case Type.BOOLEAN => printer.add(s"$Arb.arbBool.arbitrary")
-      case Type.INT => printer.add(s"$Arb.arbInt.arbitrary")
-      case Type.LONG => printer.add(s"$Arb.arbLong.arbitrary")
-      case Type.FLOAT => printer.add(s"$Arb.arbFloat.arbitrary")
-      case Type.DOUBLE => printer.add(s"$Arb.arbDouble.arbitrary")
-      case Type.BYTES => printer.add(s"$Arb.arbContainer[Array, Byte].arbitrary.map(java.nio.ByteBuffer.wrap)")
-      case Type.FIXED => throw new Exception("FIXED type is not supported")
-      case Type.NULL => throw new Exception("cannot create org.scalacheck.Gen instance for NULL")
-      case x => throw new Exception("unexpected type: " + x)
-    }
+      def etc = schema.avroType match {
+        case Type.BOOLEAN => printer.add(s"$Arb.arbBool.arbitrary")
+        case Type.INT     => printer.add(s"$Arb.arbInt.arbitrary")
+        case Type.LONG    => printer.add(s"$Arb.arbLong.arbitrary")
+        case Type.FLOAT   => printer.add(s"$Arb.arbFloat.arbitrary")
+        case Type.DOUBLE  => printer.add(s"$Arb.arbDouble.arbitrary")
+        case Type.BYTES   => printer.add(s"$Arb.arbContainer[Array, Byte].arbitrary.map(java.nio.ByteBuffer.wrap)")
+        case Type.FIXED   => throw new Exception("FIXED type is not supported")
+        case Type.NULL    => throw new Exception("cannot create org.scalacheck.Gen instance for NULL")
+        case x            => throw new Exception("unexpected type: "+x)
+      }
 
     schema.asArray.map { array =>
       printer
@@ -327,9 +327,9 @@ trait AvroExpressions {
         .add(", None))")
     }).orElse(schema.asUnion.map { union =>
 
-      def wrapGen(printer: FunctionalPrinter): FunctionalPrinter =
-        if (!union.isOversize) printer.add(s".map( elem => shapeless.Coproduct[${union.unionTypeName}](elem))")
-        else printer
+        def wrapGen(printer: FunctionalPrinter): FunctionalPrinter =
+          if (!union.isOversize) printer.add(s".map( elem => shapeless.Coproduct[${union.unionTypeName}](elem))")
+          else printer
 
       printer
         .add(s"$Gen.lzy($Gen.oneOf(")
@@ -340,9 +340,9 @@ trait AvroExpressions {
         }.add("))")
     }).orElse(schema.asOptionalUnion.map { optU =>
 
-      def wrapGen(printer: FunctionalPrinter): FunctionalPrinter =
-        if (!optU.isOversize) printer.add(s".map( elem => Some(shapeless.Coproduct[${optU.unionTypeName}](elem)))")
-        else printer.add(s".map( elem => Some(elem))")
+        def wrapGen(printer: FunctionalPrinter): FunctionalPrinter =
+          if (!optU.isOversize) printer.add(s".map( elem => Some(shapeless.Coproduct[${optU.unionTypeName}](elem)))")
+          else printer.add(s".map( elem => Some(elem))")
 
       printer
         .add(s"$Gen.lzy($Gen.oneOf(")

@@ -20,7 +20,7 @@ object AvroRoot {
   }
 
   def generate(schemaFiles: Iterable[File], src: File, dest: File, log: Logger): Set[File] = {
-    log.info(s"running on files: " + schemaFiles.map(_.getAbsolutePath).mkString(","))
+    log.info(s"running on files: "+schemaFiles.map(_.getAbsolutePath).mkString(","))
 
     dest.mkdirs()
 
@@ -29,13 +29,13 @@ object AvroRoot {
     val gen = new AvroGenerator()
     val generatedFiles = input.map {
       case (namespace, Right(enum)) =>
-        val fname = enum.getName + ".scala"
+        val fname = enum.getName+".scala"
         (fname, FunctionalPrinter()
           .add(s"package $namespace")
           .call(generatedCodeHeader(fname))
           .call(gen.printEnum(enum)))
       case (namespace, Left(record)) =>
-        val fname = record.getName + ".scala"
+        val fname = record.getName+".scala"
         (fname, FunctionalPrinter()
           .add(s"package $namespace")
           .call(generatedCodeHeader(fname))
