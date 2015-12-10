@@ -8,7 +8,6 @@ import scalaAvro.PartialAvroJsonProtocol._
  */
 
 package object scalaAvro {
-  private[scalaAvro] val schemaParser = new Schema.Parser
   implicit def avSchemaToEither(avsc: AvSchema): Either[AvSchema, AvReference] = Left(avsc)
   implicit def avReferenceToEither(avRef: AvReference): Either[AvSchema, AvReference] = Right(avRef)
   implicit def pimpSchema(schema: Schema) = new PimpedSchema(schema)
@@ -49,7 +48,7 @@ package scalaAvro {
   }
   
   sealed abstract class AvSchema(val typeName: String) { self =>
-    def toSchema: Schema = schemaParser.parse(this.toJson.toString)
+    def toSchema: Schema = new Schema.Parser().parse(this.toJson.toString)
     
     def referenceOpt: Option[AvReference] = self match {
       case r: AvReferable => Some(r.reference)
