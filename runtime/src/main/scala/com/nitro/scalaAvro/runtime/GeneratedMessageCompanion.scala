@@ -38,7 +38,7 @@ trait GeneratedMessageCompanion[A <: GeneratedMessage with Message[A]] extends F
 
   protected def convertString(s: Any): String =
     s match {
-      case s: String => s
+      case s: String                    => s
       case u: org.apache.avro.util.Utf8 => new String(u.getBytes, "UTF-8")
     }
 }

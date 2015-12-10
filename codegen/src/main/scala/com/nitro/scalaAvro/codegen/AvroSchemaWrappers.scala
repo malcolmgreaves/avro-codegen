@@ -26,7 +26,7 @@ case class AvroRecord(record: Schema) {
   def nameSpace = Option(record.getNamespace).getOrElse(AvroGenerator.defaultNameSpace)
 
   val nameSymbol = record.getName.asSymbol
-  def mutableNameSymbol = (record.getName + "Mutable").asSymbol
+  def mutableNameSymbol = (record.getName+"Mutable").asSymbol
 
   def baseClasses: Seq[String] =
     Seq(
@@ -65,7 +65,6 @@ case class AvroAnyUnion(schema: Schema) {
   val types = schema.getTypes
 }
 
-
 object AvroOptionalUnion {
   def isOptionalUnion(schema: Schema) =
     schema.getType == UNION &&
@@ -90,8 +89,8 @@ case class AvroOptionalUnion(schema: Schema) {
   def unionTypeName = if (isOversize) "Any"
   else unionScalaTypes.foldRight("shapeless.CNil")((t, acc) => s"shapeless.:+:[$t, $acc]")
   def optionalUnionTypeName = s"Option[$unionTypeName]"
-  def unionTypeExtractorName = unionScalaTypes.mkString("").filter(alpha) + "Extractor"
-  def unionTypeBuilderName = "build" + unionScalaTypes.mkString("").filter(alpha)
+  def unionTypeExtractorName = unionScalaTypes.mkString("").filter(alpha)+"Extractor"
+  def unionTypeBuilderName = "build"+unionScalaTypes.mkString("").filter(alpha)
 }
 
 object AvroUnion {
@@ -119,8 +118,8 @@ case class AvroUnion(schema: Schema) {
 
   def unionTypeName = if (isOversize) "Any"
   else unionScalaTypes.foldRight("shapeless.CNil")((t, acc) => s"shapeless.:+:[$t, $acc]")
-  def unionTypeExtractorName = unionScalaTypes.mkString("").filter(alpha) + "Extractor"
-  def unionTypeBuilderName = "build" + unionScalaTypes.mkString("").filter(alpha)
+  def unionTypeExtractorName = unionScalaTypes.mkString("").filter(alpha)+"Extractor"
+  def unionTypeBuilderName = "build"+unionScalaTypes.mkString("").filter(alpha)
 }
 
 object AvroOptional {

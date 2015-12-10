@@ -82,7 +82,7 @@ object RichAvro {
         // method returns null. In this case, we want to evaluate to the
         // default name space.
         val namespace = schema.getNamespace
-        if(namespace == null || namespace.isEmpty)
+        if (namespace == null || namespace.isEmpty)
           AvroGenerator.defaultNameSpace
         else
           namespace
