@@ -17,7 +17,8 @@ object SharedForBuild extends Build {
 
   lazy val pluginDevelopers = Seq(
     Developer("pkinsky",        "Paul Kinsky",     "pkinsky@gmail.com",         githubUrl("pkinsky")),
-    Developer("malcolmgreaves", "Malcolm Greaves", "greaves.malcolm@gmail.com", githubUrl("malcolmgreaves"))
+    Developer("malcolmgreaves", "Malcolm Greaves", "greaves.malcolm@gmail.com", githubUrl("malcolmgreaves")),
+    Developer("ebiggs",         "Eric Biggs",      "???",                       new URL("http", "ebiggs.com", ""))
   )
 
   // ** NOTE **    We want to upgrade to Java 8 ASAP. Spark is still stuck at Java 7.

@@ -21,39 +21,38 @@ object SchemaParser {
 
     case class AvroSchema(nameSpace: String, name: String, schema: Either[AvroRecord, AvroEnum])
 
-    def flatten(schemas: Seq[Schema]): Seq[AvroSchema] = {
+      def flatten(schemas: Seq[Schema]): Seq[AvroSchema] = {
 
-      var seen = Set.empty[String]
-  
-      def inner(schema: Schema): Seq[AvroSchema] = {
+        var seen = Set.empty[String]
 
-        schema.asUnion.map { union => //todo: won't match if null is a union member
-          schema.getTypes.flatMap(inner)
-        }.orElse(schema.asOptionalUnion.map { optUnion =>
-          optUnion.types.flatMap(inner)
-        }).orElse(schema.asArray.map { array =>
-          inner(array.elementType)
-        }).orElse(schema.asMap.map { map =>
-          inner(map.valueType)
-        }).orElse(schema.asOptional.map { opt =>
-          inner(opt.nonNullSchema)
-        }).orElse(schema.asEnum.map { enum =>
-          Seq(AvroSchema(enum.nameSpace, enum.getName, Right(enum)))
-        }).orElse(schema.asRecord.map { record =>
-          //hacky hacks to keep from defining two versions of the same schema
-          if (!seen(record.upperScalaName /*.toUpperCase*/ )) {
-            seen = seen + record.upperScalaName //.toUpperCase
-            Seq(AvroSchema(record.nameSpace, record.upperScalaName, Left(record))) ++
-              record.fields.flatMap(f => inner(f.schema))
-          } else Seq.empty
-        }).orElse(schema.asAnyUnion.map { anyUnion =>
-          anyUnion.types.flatMap(inner)
-        }
-        ).getOrElse(Seq.empty)
+          def inner(schema: Schema): Seq[AvroSchema] = {
+
+            schema.asUnion.map { union => //todo: won't match if null is a union member
+              schema.getTypes.flatMap(inner)
+            }.orElse(schema.asOptionalUnion.map { optUnion =>
+              optUnion.types.flatMap(inner)
+            }).orElse(schema.asArray.map { array =>
+              inner(array.elementType)
+            }).orElse(schema.asMap.map { map =>
+              inner(map.valueType)
+            }).orElse(schema.asOptional.map { opt =>
+              inner(opt.nonNullSchema)
+            }).orElse(schema.asEnum.map { enum =>
+              Seq(AvroSchema(enum.nameSpace, enum.getName, Right(enum)))
+            }).orElse(schema.asRecord.map { record =>
+              //hacky hacks to keep from defining two versions of the same schema
+              if (!seen(record.upperScalaName /*.toUpperCase*/ )) {
+                seen = seen + record.upperScalaName //.toUpperCase
+                Seq(AvroSchema(record.nameSpace, record.upperScalaName, Left(record))) ++
+                  record.fields.flatMap(f => inner(f.schema))
+              } else Seq.empty
+            }).orElse(schema.asAnyUnion.map { anyUnion =>
+              anyUnion.types.flatMap(inner)
+            }).getOrElse(Seq.empty)
+          }
+
+        schemas.flatMap(inner)
       }
-
-      schemas.flatMap(inner)
-    }
 
     val flat = flatten(schemas.toSeq)
     val grouped = flat.groupBy(as => (as.nameSpace, as.name))
