@@ -10,7 +10,7 @@ object SharedForBuild extends Build {
   import com.nitro.build._
   import PublishHelpers._
 
-  lazy val semver = SemanticVersion(0, 2, 5, isSnapshot = false)
+  lazy val semver = SemanticVersion(0, 3, 0, isSnapshot = false)
 
   private[this] def githubUrl(id: String) = 
     new URL("http", "github.com", s"/$id")
@@ -18,7 +18,7 @@ object SharedForBuild extends Build {
   lazy val pluginDevelopers = Seq(
     Developer("pkinsky",        "Paul Kinsky",     "pkinsky@gmail.com",         githubUrl("pkinsky")),
     Developer("malcolmgreaves", "Malcolm Greaves", "greaves.malcolm@gmail.com", githubUrl("malcolmgreaves")),
-    Developer("ebiggs",         "Eric Biggs",      "???",                       new URL("http", "ebiggs.com", ""))
+    Developer("ebiggs",         "Eric Biggs",      "ebiggs@gmail.com",          new URL("http", "ebiggs.com", ""))
   )
 
   // ** NOTE **    We want to upgrade to Java 8 ASAP. Spark is still stuck at Java 7.
