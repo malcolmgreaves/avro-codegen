@@ -1,0 +1,9 @@
+{
+    "type": "record",
+    "namespace": "foobar",
+    "name": "Foo",
+    "fields": [
+      { "name": "id",    "type": "int"              },
+      { "name": "first", "type": "foobar.Rectangle" }
+    ]
+}

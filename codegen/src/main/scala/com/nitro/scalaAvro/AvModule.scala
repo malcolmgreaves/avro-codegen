@@ -97,16 +97,20 @@ object AvModule {
 
   def fromPartials(partials: Seq[AvSchema]): AvModule = {
     val (defs, refs) = partials.map(_.traverse).unzip
-    val referables = defs.flatten
-    val references = refs.flatten.distinct
-    val lookups = referables.groupBy(_.reference).map {
-      case (ref, schemas) =>
-        val compact = schemas.map(_.copyWithReferencesOnly)
-        if (compact.forall(_ == compact.head))
-          ref -> compact.head
-        else
-          throw new Exception("Incompatible Schema restatement.")
-    }
+    val references: Seq[AvReference] = refs.flatten.distinct
+
+    val lookups: Map[AvReference, AvSchema] =
+      defs.flatten
+        .groupBy(_.reference)
+        .map {
+          case (ref, schemas) =>
+            val compact = schemas.map(_.copyWithReferencesOnly)
+            if (compact.forall(_ == compact.head))
+              ref -> compact.head
+            else
+              throw new Exception("Incompatible Schema restatement.")
+        }
+
     val refsNotFound = references.toSet -- lookups.keySet
     if (refsNotFound.nonEmpty)
       throw new Exception("No Definition Found for Reference(s): "+refsNotFound)

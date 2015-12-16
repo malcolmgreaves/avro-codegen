@@ -1,0 +1,12 @@
+{
+    "type": "record",
+    "namespace": "foobar",
+    "name": "Rectangle",
+    "doc:": "A rectangle, specified by its lower-left and upper-right corners.",
+    "fields": [
+      { "name": "x1", "type": "float", "doc": "Lower-left x coordinate"  },
+      { "name": "y1", "type": "float", "doc": "Lower-left y coordinate"  },
+      { "name": "x2", "type": "float", "doc": "Upper-right x coordinate" },
+      { "name": "y2", "type": "float", "doc": "Upper-right y coordinate" }
+    ]
+}

@@ -2,6 +2,7 @@ package com.nitro.scalaAvro
 
 import java.nio.file.Files
 import com.nitro.example.messages._
+import foobar._
 
 import com.nitro.scalaAvro.runtime.{GeneratedMessageCompanion, _}
 import org.apache.avro.file._
@@ -9,7 +10,11 @@ import org.apache.avro.generic._
 import org.scalatest._
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 
-trait SerializeDeserializeSpec[T <: GeneratedMessage with Message[T]] extends PropSpec with GeneratorDrivenPropertyChecks with Matchers {
+trait SerializeDeserializeSpec[T <: GeneratedMessage with Message[T]]
+  extends PropSpec
+  with GeneratorDrivenPropertyChecks
+  with Matchers {
+
   def companion: GeneratedMessageCompanion[T]
 
   property(s"serialize and deserialize ${companion.getClass.getName} messages") {
@@ -26,8 +31,10 @@ trait SerializeDeserializeSpec[T <: GeneratedMessage with Message[T]] extends Pr
         dataFileWriter.close()
 
         // Deserialize Users from disk
-        val userDatumReader: GenericDatumReader[GenericRecord] = new GenericDatumReader[GenericRecord](schema)
-        val dataFileReader: DataFileReader[GenericRecord] = new DataFileReader[GenericRecord](tmp, userDatumReader)
+        val userDatumReader: GenericDatumReader[GenericRecord] =
+          new GenericDatumReader[GenericRecord](schema)
+        val dataFileReader: DataFileReader[GenericRecord] =
+          new DataFileReader[GenericRecord](tmp, userDatumReader)
 
         dataFileReader.hasNext shouldEqual true
         val out = companion.fromMutable(dataFileReader.next)
@@ -49,10 +56,10 @@ class DrawRequestSpec extends SerializeDeserializeSpec[DrawRequest]{
   override def companion = DrawRequest
 }
 
-
 class OptionSpec extends SerializeDeserializeSpec[OptionTest]{
   override def companion = OptionTest
 }
+
 class ArraySpec extends SerializeDeserializeSpec[ArrayTest]{
   override def companion = ArrayTest
 }
@@ -63,4 +70,12 @@ class MapSpec extends SerializeDeserializeSpec[MapTest]{
 
 class EnumSpec extends SerializeDeserializeSpec[EnumTest]{
   override def companion = EnumTest
+}
+
+class RectangleSpec extends SerializeDeserializeSpec[Rectangle]{
+  override def companion = Rectangle
+}
+
+class FooSpec extends SerializeDeserializeSpec[Foo]{
+  override def companion = Foo
 }

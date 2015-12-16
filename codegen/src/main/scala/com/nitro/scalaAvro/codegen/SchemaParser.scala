@@ -1,5 +1,8 @@
 package com.nitro.scalaAvro.codegen
 
+import java.nio.file.Files
+
+import com.nitro.scalaAvro.{ AvModule, AvSchema, PartialAvroJsonProtocol }
 import org.apache.avro.Schema.Parser
 import org.apache.avro.Schema
 import org.apache.avro.Schema.Type._
@@ -10,12 +13,51 @@ import RichAvro._
 
 import collection.JavaConversions._
 import collection.JavaConverters._
+import scala.util.{ Failure, Try }
 
 object SchemaParser {
   //map package name to schema
   def getSchemas(files: Iterable[File]): Seq[(String, Either[AvroRecord, AvroEnum])] = {
-    val parser = new Parser()
-    val schemas = files.filter(_.getName.endsWith("avsc")).map(parser.parse)
+    val parserForAvsc = new Parser()
+    val schemas: Seq[Schema] = {
+
+      import spray.json._
+      import PartialAvroJsonProtocol._
+
+      val avscStrs =
+        files
+          .filter(_.getName.endsWith("avsc"))
+          .map { fi => new String(Files.readAllBytes(fi.toPath)) }
+
+      Try(avscStrs.map { parserForAvsc.parse }) match {
+        case Failure(e) =>
+          println("Failed to parse at least one .avsc file")
+          throw e
+
+        case _ =>
+      }
+
+      val avspStrs =
+        files
+          .filter(_.getName.endsWith("avsp"))
+          .map { fi => new String(Files.readAllBytes(fi.toPath)) }
+
+      val avSchemas =
+        avscStrs.map(_.parseJson.convertTo[AvSchema]) ++
+          avspStrs.map(_.parseJson.convertTo[AvSchema])
+
+      val avModule = AvModule.fromPartials(avSchemas.toSeq)
+
+      avModule.keySet.map(avModule.apply).toSeq
+    }
+
+    /*
+
+    * get all avsc files, parse them normally, fail if a single file is invalid
+    *
+
+
+     */
 
     //todo: (enhancement: track structure, gen namespaces based on parent if namespace not present)
 

@@ -10,7 +10,7 @@ object SharedForBuild extends Build {
   import com.nitro.build._
   import PublishHelpers._
 
-  lazy val semver = SemanticVersion(0, 3, 0, isSnapshot = false)
+  lazy val semver = SemanticVersion(0, 3, 1, isSnapshot = false)
 
   private[this] def githubUrl(id: String) = 
     new URL("http", "github.com", s"/$id")

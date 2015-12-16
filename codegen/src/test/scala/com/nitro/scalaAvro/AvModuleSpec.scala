@@ -150,7 +150,10 @@ class AvModuleSpec extends PropSpec with Matchers {
 
   property(s"Breaks .avsc down to .avsp and vice versa.") {
     val path = "codegen/src/test/avro"
-    val fullSchema = new String(Files.readAllBytes(Paths.get(s"$path/Example.avsc"))).parseJson.convertTo[AvSchema];
+    val fullSchema =
+      new String(Files.readAllBytes(Paths.get(s"$path/Example.avsc")))
+        .parseJson
+        .convertTo[AvSchema]
     val module = AvModule.fromPartials(Seq(fullSchema))
     val partials = module.toPartials.map {
       case (ref, partial) =>
