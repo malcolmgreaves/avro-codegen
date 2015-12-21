@@ -2,6 +2,11 @@ import com.nitro.build._
 
 import PublishHelpers._
 
+sbtPlugin := true
+// scripted test settings
+scriptedSettings
+scriptedLaunchOpts <+= version apply { v => "-Dproject.version="+v }
+
 // GAV coordinates
 lazy val projectName = "avro-codegen-compiler"
 name := projectName

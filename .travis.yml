@@ -1,5 +1,4 @@
 language: scala
 scala: 2.11.7
 script: 
-  - sbt clean update compile test
-  - ./e2e.sh
+  - sbt clean update compile test codegen/scripted
