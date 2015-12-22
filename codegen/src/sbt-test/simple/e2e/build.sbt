@@ -10,7 +10,7 @@ version      := ""
 
 // dependencies & resolvers
 libraryDependencies ++= Seq(
-  "com.gonitro"   %% "avro-codegen-runtime" % com.nitro.scalaAvro.runtime.Version.sbtPluginVersion,
+  "com.gonitro"   %% "avro-codegen-runtime" % sys.props("project.version"),
   "com.chuusai"   %% "shapeless"            % "2.2.3",
   "org.scalatest" %% "scalatest"            % "2.2.1" % Test
 )
