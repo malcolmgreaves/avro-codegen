@@ -1,3 +1,4 @@
+[![Stories in Ready](https://badge.waffle.io/Nitro/avro-codegen.png?label=ready&title=Ready)](https://waffle.io/Nitro/avro-codegen)
 avro-codegen
 ============
 [![Build Status](https://travis-ci.org/Nitro/avro-codegen.svg?branch=master)](https://travis-ci.org/Nitro/avro-codegen) [![Codacy Badge](https://api.codacy.com/project/badge/grade/bef5172255ac4795b3441c46e211865b)](https://www.codacy.com/app/greavesmalcolm/avro-codegen) [![Join the chat at https://gitter.im/Nitro/avro-codegen](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/Nitro/avro-codegen?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.gonitro/avro-codegen-runtime_2.11/badge.svg?style=plastic)](https://maven-badges.herokuapp.com/maven-central/com.gonitro/avro-codegen-runtime_2.11)
