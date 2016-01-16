@@ -6,6 +6,7 @@ sbtPlugin := true
 // scripted test settings
 scriptedSettings
 scriptedLaunchOpts <+= version apply { v => "-Dproject.version="+v }
+scriptedBufferLog := false
 
 // GAV coordinates
 lazy val projectName = "avro-codegen-compiler"
