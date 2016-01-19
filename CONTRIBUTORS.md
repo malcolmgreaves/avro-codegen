@@ -1,6 +1,10 @@
 # Contributors to avro-codegen 
 (alphabetical order on last name)
 
+## Javier Arrieta ([@javierarrieta](https://github.com/javierarrieta))
+* Contributed updated build and testing. Moved scripted tests to sbt-invoked tests.
+* Partial maintainer and reviewer.
+
 ## Eric Biggs ([@ebiggs](https://github.com/ebiggs))
 * Contributed the partial avro schema parser. Enabled the project to parse inter-dependent schemas defined in multiple files.
 
