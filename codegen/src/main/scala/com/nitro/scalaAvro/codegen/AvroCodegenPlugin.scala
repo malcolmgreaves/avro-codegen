@@ -52,7 +52,7 @@ object AvroCodegenPlugin extends AutoPlugin {
         (out, srcDir, targetDir) =>
           val cachedCompile = FileFunction.cached(
             out.cacheDirectory / "avro",
-            inStyle = FilesInfo.lastModified,
+            inStyle = FilesInfo.hash,
             outStyle = FilesInfo.exists
           ) { (in: Set[File]) =>
               AvroRoot.generate(in, srcDir, targetDir, out.log)
