@@ -41,7 +41,8 @@ object AvroCodegenPlugin extends AutoPlugin {
     )) ++ Seq[Setting[_]](
       sourceGenerators in Compile <+= (genTask in avroConfig),
       cleanFiles <+= (generatedClassesRoot in avroConfig),
-      ivyConfigurations += avroConfig
+      ivyConfigurations += avroConfig,
+      managedSourceDirectories in Compile += (generatedClassesRoot in avroConfig).value
     )
 
     private def caseClassGeneratorTask = (

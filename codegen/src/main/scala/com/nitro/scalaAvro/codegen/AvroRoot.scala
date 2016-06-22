@@ -30,19 +30,22 @@ object AvroRoot {
     val generatedFiles = input.map {
       case (namespace, Right(enum)) =>
         val fname = enum.getName+".scala"
-        (fname, FunctionalPrinter()
+        (namespace, fname, FunctionalPrinter()
           .add(s"package $namespace")
           .call(generatedCodeHeader(fname))
           .call(gen.printEnum(enum)))
       case (namespace, Left(record)) =>
         val fname = record.getName+".scala"
-        (fname, FunctionalPrinter()
+        (namespace, fname, FunctionalPrinter()
           .add(s"package $namespace")
           .call(generatedCodeHeader(fname))
           .call(gen.printRecord(record)))
     }.map {
-      case (name, printer) =>
-        val path = Paths.get(dest.getAbsolutePath, name)
+      case (namespace, name, printer) =>
+        val namespacePath = namespace.split("\\.").mkString(File.separator)
+        val fileDest = new File(dest.getAbsolutePath + File.separator + namespacePath)
+        fileDest.mkdirs()
+        val path = Paths.get(fileDest.getAbsolutePath , name)
         val bytes = printer.result().getBytes(StandardCharsets.UTF_8)
         log.info(s"writing output for name: $name to $path")
         Files.write(path, bytes)
