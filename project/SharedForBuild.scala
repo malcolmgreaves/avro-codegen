@@ -12,6 +12,8 @@ object SharedForBuild extends Build {
 
   lazy val semver = SemanticVersion(0, 3, 2, isSnapshot = false)
 
+  lazy val apacheAvro = "org.apache.avro" % "avro" % "1.8.1"
+
   private[this] def githubUrl(id: String) = 
     new URL("http", "github.com", s"/$id")
 
@@ -21,9 +23,6 @@ object SharedForBuild extends Build {
     Developer("ebiggs",         "Eric Biggs",      "ebiggs@gmail.com",          new URL("http", "ebiggs.com", ""))
   )
 
-  // ** NOTE **    We want to upgrade to Java 8 ASAP. Spark is still stuck at Java 7.
-  // [JIRA Issue]  https://issues.apache.org/jira/browse/SPARK-6152
-
   lazy val devConfig =  {
     import CompileScalaJava._
     Config.spark.copy(scala = 
@@ -31,7 +30,7 @@ object SharedForBuild extends Build {
         fatalWarnings = false,
         logImplicits = false,
         optimize = true,
-        crossCompile = Seq("2.11.7", "2.10.6"),
+        crossCompile = Seq("2.11.8", "2.10.6"),
         inlineWarn = true
       )
     )

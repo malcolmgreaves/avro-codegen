@@ -8,8 +8,8 @@ version      := semver.toString
 
 // dependencies & resolvers
 libraryDependencies ++= Seq(
-  "org.apache.avro"       % "avro" % "1.7.7",
-  "org.scalacheck"        %% "scalacheck" % "1.12.1"
+  apacheAvro,
+  "org.scalacheck" %% "scalacheck" % "1.13.1"
 )
 resolvers ++= Seq("Confluentic repository" at "http://packages.confluent.io/maven/")
 

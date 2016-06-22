@@ -11,8 +11,8 @@ version      := ""
 // dependencies & resolvers
 libraryDependencies ++= Seq(
   "com.gonitro"   %% "avro-codegen-runtime" % sys.props("project.version"),
-  "com.chuusai"   %% "shapeless"            % "2.2.3",
-  "org.scalatest" %% "scalatest"            % "2.2.1" % Test
+  "com.chuusai"   %% "shapeless"            % "2.2.5",
+  "org.scalatest" %% "scalatest"            % "2.2.6" % Test
 )
 resolvers ++= Seq(
   "Sonatype Releases"  at "https://oss.sonatype.org/content/repositories/releases/",
@@ -20,7 +20,7 @@ resolvers ++= Seq(
 )
 
 // compile & runtime settings
-scalaVersion := "2.11.7"
+scalaVersion := "2.11.8"
 CompileScalaJava.librarySettings {
   import CompileScalaJava._
   Config.spark.copy(scala =
@@ -28,7 +28,7 @@ CompileScalaJava.librarySettings {
       fatalWarnings = false,
       logImplicits  = false,
       optimize      = true,
-      crossCompile  = Seq("2.11.7", "2.10.6")
+      crossCompile  = Seq("2.11.8", "2.10.6")
     )
   )
 }
