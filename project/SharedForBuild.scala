@@ -10,9 +10,9 @@ object SharedForBuild extends Build {
   import com.nitro.build._
   import PublishHelpers._
 
-  lazy val semver = SemanticVersion(0, 3, 3, isSnapshot = true)
+  lazy val semver = SemanticVersion(0, 3, 2, isSnapshot = true)
 
-  lazy val apacheAvro = "org.apache.avro" % "avro" % "1.8.1"
+  lazy val apacheAvroDep = "org.apache.avro" % "avro" % "1.8.1"
 
   private[this] def githubUrl(id: String) = 
     new URL("http", "github.com", s"/$id")
@@ -23,6 +23,12 @@ object SharedForBuild extends Build {
     Developer("ebiggs",         "Eric Biggs",      "ebiggs@gmail.com",          new URL("http", "ebiggs.com", ""))
   )
 
+  lazy val scala211v = "2.11.8"
+  lazy val scala210v = "2.10.6"
+
+  // ** NOTE **    We want to upgrade to Java 8 ASAP. Spark is still stuck at Java 7.
+  // [JIRA Issue]  https://issues.apache.org/jira/browse/SPARK-6152
+
   lazy val devConfig =  {
     import CompileScalaJava._
     Config.spark.copy(scala = 
@@ -30,7 +36,7 @@ object SharedForBuild extends Build {
         fatalWarnings = false,
         logImplicits = false,
         optimize = true,
-        crossCompile = Seq("2.11.8", "2.10.6"),
+        crossCompile = Seq(scala211v, scala210v),
         inlineWarn = true
       )
     )

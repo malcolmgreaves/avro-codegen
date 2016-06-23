@@ -11,7 +11,7 @@ version      := ""
 // dependencies & resolvers
 libraryDependencies ++= Seq(
   "com.gonitro"   %% "avro-codegen-runtime" % sys.props("project.version"),
-  "com.chuusai"   %% "shapeless"            % "2.2.5",
+  "com.chuusai"   %% "shapeless"            % "2.3.1",
   "org.scalatest" %% "scalatest"            % "2.2.6" % Test
 )
 resolvers ++= Seq(
@@ -21,17 +21,6 @@ resolvers ++= Seq(
 
 // compile & runtime settings
 scalaVersion := "2.11.8"
-CompileScalaJava.librarySettings {
-  import CompileScalaJava._
-  Config.spark.copy(scala =
-    ScalaConfig(
-      fatalWarnings = false,
-      logImplicits  = false,
-      optimize      = true,
-      crossCompile  = Seq("2.11.8", "2.10.6")
-    )
-  )
-}
 
 // special library dependency
 libraryDependencies <+= (scalaVersion) { v => "org.scala-lang" % "scala-compiler" % v }

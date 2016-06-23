@@ -1,7 +1,7 @@
 
 organization in ThisBuild := "com.gonitro"
 
-scalaVersion in ThisBuild := "2.11.7"
+scalaVersion in ThisBuild := scala211v
 
 lazy val root =
   project.in(file("."))

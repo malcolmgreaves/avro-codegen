@@ -8,13 +8,13 @@ version      := semver.toString
 
 // dependencies & resolvers
 libraryDependencies ++= Seq(
-  apacheAvro,
-  "org.scalacheck" %% "scalacheck" % "1.13.1"
+  apacheAvroDep,
+  "org.scalacheck" %% "scalacheck" % "1.12.1"
 )
 resolvers ++= Seq("Confluentic repository" at "http://packages.confluent.io/maven/")
 
 // compile & runtime settings
-scalaVersion := "2.11.7"
+scalaVersion := scala211v
 CompileScalaJava.librarySettings(devConfig)
 javaOptions := jvmOpts
 
