@@ -70,7 +70,7 @@ class AvroGenerator(val params: AvroGeneratorParams = AvroGeneratorParams()) ext
     printer.addM(
       s"""object $className extends $companionType {
          |  implicit def messageCompanion: $companionType = this
-         |  def schema: org.apache.avro.Schema =
+         |  val schema: org.apache.avro.Schema =
          |    new org.apache.avro.Schema.Parser().parse(\"\"\"${record.record.toString}\"\"\")""" //supply schema as json
     )
       .indent
@@ -255,7 +255,7 @@ class AvroGenerator(val params: AvroGeneratorParams = AvroGeneratorParams()) ext
       .indent
       .addM(
         s"""
-           |  def schema: org.apache.avro.Schema =
+           |  val schema: org.apache.avro.Schema =
            |    new org.apache.avro.Schema.Parser().parse(\"\"\"${e.schema.toString}\"\"\")"""
       )
       .print(e.getValues) {
