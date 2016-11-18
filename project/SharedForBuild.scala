@@ -10,7 +10,7 @@ object SharedForBuild extends Build {
   import com.nitro.build._
   import PublishHelpers._
 
-  lazy val semver = SemanticVersion(0, 3, 4, isSnapshot = false)
+  lazy val semver = SemanticVersion(0, 3, 5, isSnapshot = false)
 
   lazy val apacheAvroDep = "org.apache.avro" % "avro" % "1.8.1"
 

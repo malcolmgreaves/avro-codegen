@@ -45,7 +45,7 @@ object AvroRoot {
         val namespacePath = namespace.split("\\.").mkString(File.separator)
         val fileDest = new File(dest.getAbsolutePath + File.separator + namespacePath)
         fileDest.mkdirs()
-        val path = Paths.get(fileDest.getAbsolutePath , name)
+        val path = Paths.get(fileDest.getAbsolutePath, name)
         val bytes = printer.result().getBytes(StandardCharsets.UTF_8)
         log.info(s"writing output for name: $name to $path")
         Files.write(path, bytes)

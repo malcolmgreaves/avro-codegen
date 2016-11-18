@@ -1,8 +1,11 @@
 package com.nitro.scalaAvro
 
+import java.io.File
+
 import org.scalatest._
 import spray.json._
 import PartialAvroJsonProtocol._
+
 import language.reflectiveCalls
 import java.nio.file.Paths
 import java.nio.file.Files
