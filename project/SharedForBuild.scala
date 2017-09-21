@@ -48,7 +48,7 @@ object SharedForBuild extends Build {
 
   lazy val pubSettings =
     Publish.settings(
-      Repository.github("Nitro", "avro-codegen"),
+      Repository.github("malcolmgreaves", "avro-codegen"),
       pluginDevelopers,
       ArtifactInfo.sonatype(semver),
       License.apache20
