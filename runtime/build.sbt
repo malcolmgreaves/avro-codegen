@@ -9,14 +9,22 @@ version      := semver.toString
 // dependencies & resolvers
 libraryDependencies ++= Seq(
   apacheAvroDep,
-  "org.scalacheck" %% "scalacheck" % "1.12.1"
+  "org.scalacheck" %% "scalacheck" % "1.13.4"
 )
 resolvers ++= Seq("Confluentic repository" at "http://packages.confluent.io/maven/")
 
 // compile & runtime settings
-scalaVersion := scala211v
+scalaVersion := scala212v
 CompileScalaJava.librarySettings(devConfig)
 javaOptions := jvmOpts
 
 // publish settings
 pubSettings
+
+scalacOptions := {
+  val old = scalacOptions.value
+  scalaVersion.value match {
+    case sv if sv.startsWith("2.12") => old diff List("-Yinline-warnings", "-optimise")
+    case _                           => old
+  }
+}
