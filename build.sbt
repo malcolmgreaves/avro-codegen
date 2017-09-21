@@ -1,7 +1,7 @@
 
 organization in ThisBuild := "com.gonitro"
 
-scalaVersion in ThisBuild := scala211v
+scalaVersion in ThisBuild := scala212v
 
 lazy val root =
   project.in(file("."))
@@ -17,5 +17,3 @@ lazy val runtime = project.in(file("runtime"))
 lazy val codegen = project.in(file("codegen"))
 
 lazy val ShortTest = config("short") extend Test
-
-

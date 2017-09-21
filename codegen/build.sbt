@@ -2,24 +2,24 @@ import com.nitro.build._
 
 import PublishHelpers._
 
+ScriptedPlugin.scriptedSettings
 sbtPlugin := true
 // scripted test settings
-scriptedSettings
-scriptedLaunchOpts <+= version apply { v => "-Dproject.version="+v }
+scriptedLaunchOpts += {  "-Dproject.version="+version.value }
 scriptedBufferLog := false
 
 // GAV coordinates
-lazy val projectName = "avro-codegen-compiler"
-name := projectName
+name := "avro-codegen-compiler"
 version := semver.toString
 
 // dependencies & resolvers
 libraryDependencies ++= Seq(
   "org.scala-lang" %  "scala-reflect" % scalaVersion.value,
-  "io.spray"       %% "spray-json"    % "1.3.2",
+  "io.spray"       %% "spray-json"    % "1.3.3",
   apacheAvroDep,
-  "org.scalatest" %%  "scalatest"     % "2.2.6" % Test
+  "org.scalatest" %%  "scalatest"     % "3.0.1" % Test
 )
+
 resolvers ++= Seq(
   "Typesafe Releases Repository - common" at "http://repo.typesafe.com/typesafe/releases/"
 )

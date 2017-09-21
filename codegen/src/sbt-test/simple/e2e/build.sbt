@@ -11,8 +11,8 @@ version      := ""
 // dependencies & resolvers
 libraryDependencies ++= Seq(
   "com.gonitro"   %% "avro-codegen-runtime" % sys.props("project.version"),
-  "com.chuusai"   %% "shapeless"            % "2.3.1",
-  "org.scalatest" %% "scalatest"            % "2.2.6" % Test
+  "com.chuusai"   %% "shapeless"            % "2.3.2",
+  "org.scalatest" %% "scalatest"            % "3.0.1" % Test
 )
 resolvers ++= Seq(
   "Sonatype Releases"  at "https://oss.sonatype.org/content/repositories/releases/",
@@ -20,11 +20,10 @@ resolvers ++= Seq(
 )
 
 // compile & runtime settings
-scalaVersion := "2.11.8"
+scalaVersion := "2.12.3"
 
 // special library dependency
-libraryDependencies <+= (scalaVersion) { v => "org.scala-lang" % "scala-compiler" % v }
-
+libraryDependencies += { "org.scala-lang" % "scala-compiler" % scalaVersion.value }
 
 // publish settings
 publish := {}

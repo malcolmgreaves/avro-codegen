@@ -14,7 +14,7 @@ object SharedForBuild extends Build {
 
   lazy val apacheAvroDep = "org.apache.avro" % "avro" % "1.8.1"
 
-  private[this] def githubUrl(id: String) = 
+  private[this] def githubUrl(id: String) =
     new URL("http", "github.com", s"/$id")
 
   lazy val pluginDevelopers = Seq(
@@ -23,7 +23,8 @@ object SharedForBuild extends Build {
     Developer("ebiggs",         "Eric Biggs",      "ebiggs@gmail.com",          new URL("http", "ebiggs.com", ""))
   )
 
-  lazy val scala211v = "2.11.8"
+  lazy val scala212v = "2.12.3"
+  lazy val scala211v = "2.11.11"
   lazy val scala210v = "2.10.6"
 
   // ** NOTE **    We want to upgrade to Java 8 ASAP. Spark is still stuck at Java 7.
@@ -31,13 +32,14 @@ object SharedForBuild extends Build {
 
   lazy val devConfig =  {
     import CompileScalaJava._
-    Config.spark.copy(scala = 
+    Config.spark.copy(scala =
       ScalaConfig(
         fatalWarnings = false,
         logImplicits = false,
         optimize = true,
-        crossCompile = Seq(scala211v, scala210v),
-        inlineWarn = true
+        crossCompile = Seq(scala212v, scala211v, scala210v),
+        inlineWarn = true,
+        genBBackend = false
       )
     )
   }
