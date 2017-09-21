@@ -16,7 +16,6 @@ resolvers ++= Seq("Confluentic repository" at "http://packages.confluent.io/mave
 // compile & runtime settings
 scalaVersion := scala212v
 CompileScalaJava.librarySettings(devConfig)
-javaOptions := jvmOpts
 
 // publish settings
 pubSettings

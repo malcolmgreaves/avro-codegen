@@ -27,7 +27,6 @@ resolvers ++= Seq(
 // compile & runtime settings
 scalaVersion := scala210v
 CompileScalaJava.pluginSettings(devConfig)
-javaOptions := jvmOpts
 
 // publishing
 pubSettings

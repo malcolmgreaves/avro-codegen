@@ -21,36 +21,20 @@ object AvroCodegenPlugin extends AutoPlugin {
 
     lazy val generatedClassesRoot = SettingKey[File]("avroClassesSource", "Folder where the case classes will be generated")
 
-    val inputDir = sourceDirectory <<= (sourceDirectory in Compile) {
-      _ / "avro"
-    }
+    val inputDir = sourceDirectory := {(sourceDirectory in Compile).value} / "avro"
 
-    val outputDir = generatedClassesRoot <<= (sourceManaged in Compile) {
-      _ / "generated_avro_classes"
-    }
+    val outputDir = generatedClassesRoot := {(sourceManaged in Compile).value}  / "generated_avro_classes"
 
-    val classPath = managedClasspath <<= (classpathTypes, update) map { (ct, report) =>
-      Classpaths.managedJars(avroConfig, ct, report)
-    }
+    val classPath = managedClasspath := Classpaths.managedJars(avroConfig, {classpathTypes.value}, {update.value})
 
     lazy val avroSettings: Seq[Setting[_]] = inConfig(avroConfig)(Seq[Setting[_]](
       inputDir,
       outputDir,
       classPath,
-      genTask <<= caseClassGeneratorTask
-    )) ++ Seq[Setting[_]](
-      sourceGenerators in Compile <+= (genTask in avroConfig),
-      cleanFiles <+= (generatedClassesRoot in avroConfig),
-      ivyConfigurations += avroConfig,
-      managedSourceDirectories in Compile += (generatedClassesRoot in avroConfig).value
-    )
-
-    private def caseClassGeneratorTask = (
-      streams,
-      sourceDirectory in avroConfig,
-      generatedClassesRoot in avroConfig
-    ) map {
-        (out, srcDir, targetDir) =>
+      genTask := {
+	  val out = {streams.value}
+	  val srcDir = {(sourceDirectory in avroConfig).value}
+   	  val targetDir = {(generatedClassesRoot in avroConfig).value}
           val cachedCompile = FileFunction.cached(
             out.cacheDirectory / "avro",
             inStyle = FilesInfo.hash,
@@ -60,6 +44,12 @@ object AvroCodegenPlugin extends AutoPlugin {
             }
           cachedCompile((srcDir ** "*.av*").get.toSet).toSeq
       }
+    )) ++ Seq[Setting[_]](
+      sourceGenerators in Compile += (genTask in avroConfig),
+      cleanFiles += {(generatedClassesRoot in avroConfig).value},
+      ivyConfigurations += avroConfig,
+      managedSourceDirectories in Compile += (generatedClassesRoot in avroConfig).value
+    )
   }
 
 }
