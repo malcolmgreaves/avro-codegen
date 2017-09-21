@@ -16,3 +16,7 @@
 * Original project author.
 * Lead developer.
 * Maintainer & reviewer.
+
+## Mike Toggweiler ([@toggm](https://github.com/toggm))
+* Infrastructure, build updates.
+
