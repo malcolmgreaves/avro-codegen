@@ -1,5 +1,5 @@
 
-organization in ThisBuild := "com.gonitro"
+organization in ThisBuild := "io.malcolmgreaves"
 
 scalaVersion in ThisBuild := scala212v
 

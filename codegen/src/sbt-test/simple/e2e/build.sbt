@@ -10,9 +10,9 @@ version      := ""
 
 // dependencies & resolvers
 libraryDependencies ++= Seq(
-  "com.gonitro"   %% "avro-codegen-runtime" % sys.props("project.version"),
-  "com.chuusai"   %% "shapeless"            % "2.3.2",
-  "org.scalatest" %% "scalatest"            % "3.0.1" % Test
+  "io.malcolmgreaves" %% "avro-codegen-runtime" % sys.props("project.version"),
+  "com.chuusai"       %% "shapeless"            % "2.3.2",
+  "org.scalatest"     %% "scalatest"            % "3.0.1" % Test
 )
 resolvers ++= Seq(
   "Sonatype Releases"  at "https://oss.sonatype.org/content/repositories/releases/",
