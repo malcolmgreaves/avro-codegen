@@ -202,8 +202,14 @@ object PartialAvroJsonProtocol extends DefaultJsonProtocol {
             case Some(JsString(AvArray.typeName))  => readAvArray(namespace, fields)
             case Some(JsString(AvEnum.typeName))   => readAvEnum(namespace, fields)
             case Some(JsString(AvFixed.typeName))  => readAvFixed(namespace, fields)
+            case Some(JsString(typeName))          =>
+              if (primitiveNames.contains(typeName)) {
+                readAvPrimitive(typeName)
+              } else {
+                throw new DeserializationException("Unknown Avro Primitive: "+typeName)
+              }
             case Some(js) => throw new DeserializationException(
-              s"""Expected "type" to be one of "${AvRecord.typeName}", "${AvRecord.typeName}", "${AvMap.typeName}", "${AvArray.typeName}", "${AvFixed.typeName}". Found: ${js.toString} """
+              s"""Expected "type" to be one of, "${AvRecord.typeName}", "${AvMap.typeName}", "${AvArray.typeName}", "${AvFixed.typeName}", ${AvPrimitive.all.map(_.typeName).mkString("\", \"")}. Found: ${js.toString} """
             )
             case None => throw new DeserializationException("Avro Schema JsObject must define a \"type\" field.")
           }
