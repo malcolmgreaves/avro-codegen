@@ -17,12 +17,12 @@ import collection.JavaConverters._
 import scala.util.{ Failure, Success, Try }
 
 object SchemaParser {
-  lazy val checkSanity = (avscDocs: Iterable[File], parserForAvsc: Parser) => {
+  lazy val checkSanity = (avscDocs: Iterable[File]) => {
     avscDocs.map {
       avscDoc =>
         {
           val avscStr = new String(Files.readAllBytes(avscDoc.toPath))
-          Try(parserForAvsc.parse(avscStr)) match {
+          Try(new Parser().parse(avscStr)) match {
             case Failure(e) =>
               println(s"Failed to parse $avscDoc")
               throw e
@@ -33,7 +33,6 @@ object SchemaParser {
   }
   //map package name to schema
   def getSchemas(files: Iterable[File]): Seq[(String, Either[AvroRecord, AvroEnum])] = {
-    val parserForAvsc = new Parser()
     val schemas: Seq[Schema] = {
       import spray.json._
       import PartialAvroJsonProtocol._
@@ -43,7 +42,7 @@ object SchemaParser {
         avscDocs
           .map { fi => new String(Files.readAllBytes(fi.toPath)) }
 
-      checkSanity(avscDocs, parserForAvsc)
+      checkSanity(avscDocs)
       val avspStrs =
         files
           .filter(_.getName.endsWith("avsp"))
@@ -90,8 +89,9 @@ object SchemaParser {
               Seq(AvroSchema(enum.nameSpace, enum.getName, Right(enum)))
             }).orElse(schema.asRecord.map { record =>
               //hacky hacks to keep from defining two versions of the same schema
-              if (!seen(record.upperScalaName /*.toUpperCase*/ )) {
-                seen = seen + record.upperScalaName //.toUpperCase
+              val fullName = record.nameSpace + "." + record.upperScalaName
+              if (!seen(fullName /*.toUpperCase*/ )) {
+                seen = seen + fullName //.toUpperCase
                 Seq(AvroSchema(record.nameSpace, record.upperScalaName, Left(record))) ++
                   record.fields.flatMap(f => inner(f.schema))
               } else Seq.empty
