@@ -23,41 +23,49 @@ class AvModuleSpec extends PropSpec with Matchers {
 
   property(s"Reads/Writes null") {
     AvNull shouldBe "\"null\"".parseJson.convertTo[AvSchema]
+    AvNull shouldBe """{"type":"null"}""".parseJson.convertTo[AvSchema]
     AvNull.asInstanceOf[AvSchema].toJson.toString shouldBe "\"null\""
   }
 
   property(s"Reads/Writes boolean") {
     AvBoolean shouldBe "\"boolean\"".parseJson.convertTo[AvSchema]
+    AvBoolean shouldBe """{"type":"boolean"}""".parseJson.convertTo[AvSchema]
     AvBoolean.asInstanceOf[AvSchema].toJson.toString shouldBe "\"boolean\""
   }
 
   property(s"Reads/Writes int") {
     AvInt shouldBe "\"int\"".parseJson.convertTo[AvSchema]
+    AvInt shouldBe """{"type":"int"}""".parseJson.convertTo[AvSchema]
     AvInt.asInstanceOf[AvSchema].toJson.toString shouldBe "\"int\""
   }
 
   property(s"Reads/Writes long") {
     AvLong shouldBe "\"long\"".parseJson.convertTo[AvSchema]
+    AvLong shouldBe """{"type":"long"}""".parseJson.convertTo[AvSchema]
     AvLong.asInstanceOf[AvSchema].toJson.toString shouldBe "\"long\""
   }
 
   property(s"Reads/Writes float") {
     AvFloat shouldBe "\"float\"".parseJson.convertTo[AvSchema]
+    AvFloat shouldBe """{"type":"float"}""".parseJson.convertTo[AvSchema]
     AvFloat.asInstanceOf[AvSchema].toJson.toString shouldBe "\"float\""
   }
 
   property(s"Reads/Writes double") {
     AvDouble shouldBe "\"double\"".parseJson.convertTo[AvSchema]
+    AvDouble shouldBe """{"type":"double"}""".parseJson.convertTo[AvSchema]
     AvDouble.asInstanceOf[AvSchema].toJson.toString shouldBe "\"double\""
   }
 
   property(s"Reads/Writes bytes") {
     AvBytes shouldBe "\"bytes\"".parseJson.convertTo[AvSchema]
+    AvBytes shouldBe """{"type":"bytes"}""".parseJson.convertTo[AvSchema]
     AvBytes.asInstanceOf[AvSchema].toJson.toString shouldBe "\"bytes\""
   }
 
   property(s"Reads/Writes string") {
     AvString shouldBe "\"string\"".parseJson.convertTo[AvSchema]
+    AvString shouldBe """{"type":"string"}""".parseJson.convertTo[AvSchema]
     AvString.asInstanceOf[AvSchema].toJson.toString shouldBe "\"string\""
   }
 
