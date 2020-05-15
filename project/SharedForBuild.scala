@@ -10,9 +10,9 @@ object SharedForBuild extends Build {
   import com.nitro.build._
   import PublishHelpers._
 
-  lazy val semver = SemanticVersion(0, 3, 7, isSnapshot = false)
+  lazy val semver = SemanticVersion(0, 4, 0, isSnapshot = true)
 
-  lazy val apacheAvroDep = "org.apache.avro" % "avro" % "1.8.1"
+  lazy val apacheAvroDep = "org.apache.avro" % "avro" % "1.9.2"
 
   private[this] def githubUrl(id: String) =
     new URL("http", "github.com", s"/$id")
@@ -23,7 +23,7 @@ object SharedForBuild extends Build {
     Developer("ebiggs",         "Eric Biggs",      "ebiggs@gmail.com",          new URL("http", "ebiggs.com", ""))
   )
 
-  lazy val scala212v = "2.12.3"
+  lazy val scala212v = "2.12.6"
   lazy val scala211v = "2.11.11"
   lazy val scala210v = "2.10.6"
 

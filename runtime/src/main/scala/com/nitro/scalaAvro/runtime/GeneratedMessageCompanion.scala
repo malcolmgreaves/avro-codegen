@@ -13,7 +13,7 @@ trait GeneratedEnum {
 trait GeneratedEnumCompanion[A <: GeneratedEnum] {
   type ValueType = A
   def fromValue(id: Int): A
-  def fromMutable(generic: org.apache.avro.generic.GenericEnumSymbol): A
+  def fromMutable(generic: org.apache.avro.generic.GenericEnumSymbol[org.apache.avro.generic.GenericData.EnumSymbol]): A
   def values: Seq[A]
   def _arbitrary: Gen[A]
 }
