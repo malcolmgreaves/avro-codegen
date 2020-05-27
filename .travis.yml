@@ -1,6 +1,6 @@
 language: scala
 jdk:
-  - oraclejdk8
+  - openjdk8
 scala: 2.12.3
 script: 
   - sbt clean update compile test runtime/publishLocal codegen/scripted
