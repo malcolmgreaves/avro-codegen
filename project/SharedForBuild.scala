@@ -10,7 +10,7 @@ object SharedForBuild extends Build {
   import com.nitro.build._
   import PublishHelpers._
 
-  lazy val semver = SemanticVersion(0, 4, 0, isSnapshot = true)
+  lazy val semver = SemanticVersion(0, 4, 0, isSnapshot = false)
 
   lazy val apacheAvroDep = "org.apache.avro" % "avro" % "1.9.2"
 
@@ -23,6 +23,7 @@ object SharedForBuild extends Build {
     Developer("ebiggs",         "Eric Biggs",      "ebiggs@gmail.com",          new URL("http", "ebiggs.com", ""))
   )
 
+  lazy val scala213v = "2.13.2"
   lazy val scala212v = "2.12.6"
   lazy val scala211v = "2.11.11"
   lazy val scala210v = "2.10.6"
@@ -37,7 +38,7 @@ object SharedForBuild extends Build {
         fatalWarnings = false,
         logImplicits = false,
         optimize = true,
-        crossCompile = Seq(scala212v, scala211v, scala210v),
+        crossCompile = Seq(scala213v, scala212v, scala211v, scala210v),
         inlineWarn = true,
         genBBackend = false
       )
