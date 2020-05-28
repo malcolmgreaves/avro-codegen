@@ -204,7 +204,7 @@ class AvroGenerator(val params: AvroGeneratorParams = AvroGeneratorParams()) ext
 
   def generateFromMutable(enum: AvroEnum)(printer: FunctionalPrinter): FunctionalPrinter = {
     printer
-      .add(s"def fromMutable(generic: ${Types.GenericEnumInterface}): ${enum.getName.asSymbol} = generic.toString match {")
+      .add(s"def fromMutable(generic: ${Types.GenericEnumInterface}[${Types.GenericEnumBase}]): ${enum.getName.asSymbol} = generic.toString match {")
       .print(enum.getValues) {
         case (v, p) => p.add(s"""  case "${v.name}" => ${v.name.asSymbol}""")
       }.add("}")
@@ -367,7 +367,7 @@ trait AvroExpressions {
     }).orElse(schema.asMap.map { map => (s: String) =>
       s"""scala.collection.immutable.Map() ++ scala.collection.JavaConversions.mapAsScalaMap($s.asInstanceOf[java.util.HashMap[${Types.Utf8}, Any]]).map{ case (_k,_v) => (${stringConverter("_k")}, ${fromMutable(map.valueType)("_v")})}"""
     }).orElse(schema.asEnum.map { enum => (s: String) =>
-      s"${enum.getName.asSymbol}.fromMutable($s.asInstanceOf[${Types.GenericEnumInterface}])"
+      s"${enum.getName.asSymbol}.fromMutable($s.asInstanceOf[${Types.GenericEnumInterface}[${Types.GenericEnumBase}]])"
     }).orElse(schema.asRecord.map { record => (s: String) =>
       s"${record.fullScalaTypeName}.fromMutable($s.asInstanceOf[${Types.GenericRecordInterface}])"
     }).orElse(schema.asString.map { string => (s: String) =>
